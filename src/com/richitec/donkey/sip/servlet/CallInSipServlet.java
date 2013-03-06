@@ -71,10 +71,7 @@ public class CallInSipServlet extends SipServlet {
     private static final String MEDIA_SERVER_CONN = "media_server_conn";
     private static final String USER_SIPURI = "user_sip_uri";
     private static final String CONFERENCE_ID = "conference_id";
-    private static final String SESSION_STATE = "session_state";
     private static final String COLLECT_DTMF_TIMES = "collect_dtmf_times";
-    
-    private enum State {NoConference, HasOneConference, HasMultiConference};
     
     private static final String No_Conference_Voice_Play_Done = "app.noConferenceVoicePlayDone";
     private static final String Join_Conference_Voice_Play_Done = "app.joinConferenceVoicePlayDone";
@@ -325,18 +322,15 @@ public class CallInSipServlet extends SipServlet {
     	Set<String> confSet = conferenceManager.getConferenceByAttendee(uri);
     	if (null == confSet || confSet.size() <= 1){
     		log.warn("Find no conference for " + uri);
-    		mediaServerSession.setAttribute(SESSION_STATE, State.NoConference);
     		collectDtmf(mediaServerSession);
 //    		playAudio(mediaServerSession, config.getNoConferenceVoice(), No_Conference_Voice_Play_Done);
     	} else if (confSet.size() == 1) {
     		// Join to conference
     		String confId = confSet.iterator().next();
     		mediaServerSession.setAttribute(CONFERENCE_ID, confId);
-    		mediaServerSession.setAttribute(SESSION_STATE, State.HasOneConference);
     		playAudio(mediaServerSession, config.getJoinConferenceVoice(), Join_Conference_Voice_Play_Done);
     	} else { //confSet.size() > 1
     		log.warn("Find " + confSet.size() + " conferences for " + uri);
-    		mediaServerSession.setAttribute(SESSION_STATE, State.HasMultiConference);
     		collectDtmf(mediaServerSession);
     	}
     }
